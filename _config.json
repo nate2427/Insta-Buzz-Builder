@@ -1,0 +1,18 @@
+{
+  "Username": "",
+  "Password": "",
+  "SessionID": "",
+  "UsersToWatch": [""],
+  "RandomDelayMinBetweenInteraction": 1,
+  "RandomDelayMaxBetweenInteraction": 3,
+  "RandomDelayMinBetweenPost": 30,
+  "RandomDelayMaxBetweenPost": 60,
+  "OpenAIAPI_Key": "",
+  "CommentIfOpenAIFails": "",
+  "OpenAIModel": "gpt-3.5-turbo-16k",
+  "UseOpenAI": true,
+  "THUNDER_PROXIES_USER": "",
+  "THUNDER_PROXIES_PASS": "",
+  "THUNDER_PROXIES_URL": "",
+  "THUNDER_PROXIES_PORT": ""
+}

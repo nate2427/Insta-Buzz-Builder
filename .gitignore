@@ -1,0 +1,7 @@
+config.json
+log.log
+session.json
+temp.txt
+userswatching.json
+env/
+test.py
