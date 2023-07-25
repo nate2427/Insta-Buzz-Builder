@@ -56,3 +56,9 @@ def main():
     collection = db["Social Media Bots"]
 
     return collection.insert_many(accounts)
+
+
+def upload_bots_from_list(bot):
+    db = client["Bots"]
+    collection = db["Social Media Bots"]
+    return collection.insert_many(bot)
