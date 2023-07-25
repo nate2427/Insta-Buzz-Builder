@@ -38,8 +38,11 @@ def login_user(username, password, session_id=""):
                 client.set_settings({})
                 client.set_uuids(old_session_data["uuids"])
                 client.login(username, password)
+                print("Bot is now active 😈\n")
             else:
                 login_via_session_data = True
+                print("Bot is now active 😈\n")
+
         except Exception as e:
             logging.info(f"Couldn't log in user using session information: {e}")
 
@@ -49,6 +52,7 @@ def login_user(username, password, session_id=""):
             if client.login_by_sessionid(session_id):
                 login_via_session_id = True
                 client.dump_settings("session.json")
+                print("Bot is now active 😈\n")
         except Exception as e:
             logging.info(f"Couldn't log in user using session id: {e}")
 
@@ -58,6 +62,7 @@ def login_user(username, password, session_id=""):
             if client.login(username, password):
                 login_via_password = True
                 client.dump_settings("session.json")
+                print("Bot is now active 😈\n")
         except Exception as e:
             logging.info(f"Couldn't log in user using username and password: {e}")
 
@@ -310,6 +315,7 @@ if __name__ == '__main__':
 
     # Logs in and saves the account settings
     login_user(data["Username"], data["Password"], data["SessionID"])
+
     data["SessionID"] = client.get_settings()["authorization_data"]["sessionid"]
     with open("config.json", "w") as config_file:
         json.dump(data, config_file, indent=4)
