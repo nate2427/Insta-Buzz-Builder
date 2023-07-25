@@ -2,7 +2,7 @@
   "Username": "",
   "Password": "",
   "SessionID": "",
-  "UsersToWatch": [""],
+  "UsersToWatch": [],
   "RandomDelayMinBetweenInteraction": 1,
   "RandomDelayMaxBetweenInteraction": 3,
   "RandomDelayMinBetweenPost": 30,
