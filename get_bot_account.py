@@ -28,5 +28,5 @@ def main():
     collection.update_one({"_id": bot["_id"]}, {"$set": bot})
     return JSONEncoder().encode(bot)
 
-if __name__ == '__main__':
-    main()
+
+main()
