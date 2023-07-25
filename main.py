@@ -123,8 +123,10 @@ def likePost(media_id):
         # Attemps to like a post
         client.media_like(media_id)
         logging.info(f"Successfully liked a post. ID: {media_id}")
+        print(f"Successfully liked the post. ID: {media_id}\n")
     except Exception as e:
         logging.error(f"An error occurred when attempting to like {media_id}: {e}")
+        print(f"An error occurred when attempting to like {media_id}: {e}\n")
 
 
 def getPosts(hashtag, amountposts):
@@ -138,11 +140,15 @@ def getPosts(hashtag, amountposts):
     """
     try:
         # Attemps to get posts
-        posts = client.hashtag_medias_top(hashtag, amount=250)
+        print("Finding posts using hashtag: ", hashtag + "...\n")
+        posts = client.hashtag_medias_top(hashtag, amount=100)
         sorted_posts = sorted(posts, key=lambda p: p.like_count, reverse=True)
+       
+        print("length of posts: ", len(posts), "\n")
+        print("length of sorted posts by like count: ", len(sorted_posts), "\n")
         # Get the top posts
-        top_posts = sorted_posts[:amountposts]
-        print(f"Successfully found {len(top_posts)} posts using #{hashtag}")
+        top_posts = sorted_posts
+        print(f"Successfully found {len(top_posts)} posts using #{hashtag}", "\n")
         logging.info(f"Successfully found {len(top_posts)} posts using #{hashtag}")
 
         # Creates a list of the useful post information and returns the list
@@ -228,17 +234,20 @@ def generateComment(openai_api_key, model, CommentIfOpenAIFails, caption_text, c
             model=model,
             messages=[
                 {"role": "system",
-                 "content": "You are a top of the line Instagram Marketer who uses the comments section on targeted posts to boost traffic to another account that creates complentary content to the post that is being commented on. You understand the account that you are working for and the name of the account is given below. There is a bit of a description of the user that you are working for below. Use that and your creative writing and marketing skills to provide engaging and quality responses to the posts you are viewing. Make sure to tag the account that you are working for and to also tag the account that you are commenting on. Make sure the post isnt longer than a one minute read. Engage the two accounts and talk about how their work is similar and different and how we all can work together to provide more quality content for our community. You know this is a piece of cake. You've been doing this for over 10 years and have done it for big brands. You move with stealth and you use emotional intelligence when connecting with individuals via instagram Posts. You know not to be pushy on getting people to follow directly, but use indirect ways to get people to follow you by making them feel important, inspired, and interested.\n\n You are scrolling Instagram, when you find a post..."},
+                 "content": "You are a top of the line Instagram Marketer who uses the comments section on targeted posts to boost traffic to another account that creates complentary content to the post that is being commented on. You understand the account that you are working for and the name of the account is given below. There is a bit of a description of the user that you are working for below. Use that and your creative writing and marketing skills to provide engaging and quality responses to the posts you are viewing. Make sure to tag the account that you are working for and to also tag the account that you are commenting on. Make sure the post isnt longer than a 15 second read. Engage the two accounts and talk about how our interests are similar and how the community can benefit from it. You know this is a piece of cake. You've been doing this for over 10 years and have done it for big brands and even individuals. Understand whether the account is a business or just a regular user. You responses depend on this. You move with stealth and you use emotional intelligence when connecting with individuals via instagram Posts. You know not to be pushy on getting people to follow directly, but use indirect ways to get people to follow you by making them feel important, inspired, and interested.\n\n You are scrolling Instagram, when you find a post..."},
                 {"role": "user", "content": usercontent}
             ]
         )
         comment_text = completion.choices[0]["message"]["content"]
         logging.info(f"Returning following OpenAI generated comment: {comment_text}")
+        print(f"Returning following OpenAI generated comment: {comment_text}")
         return comment_text
     except Exception as e:
         # Returns CommentIfOpenAIFails if an erorr occurres
         logging.error(f"An error occurred whilst attempting to generate a comment: {e}")
         logging.info(f"Returning the following fail comment due to the error: {CommentIfOpenAIFails}")
+        print(f"An error occurred whilst attempting to generate a comment: {e}")
+        print(f"Returning the following fail comment due to the error: {CommentIfOpenAIFails}")
         return CommentIfOpenAIFails
 
 
@@ -267,6 +276,8 @@ def bot(hashtag, amountposts, targeted_acct, targeted_acct_details, Usernames, R
             watch_users(Usernames)
             #Logs the posts code
             logging.info(f"Running bot on post with code: {media[5]}")
+            logging.info(f"url: https://www.instagram.com/p/{media[5]}/")
+            print(f"Running bot on post: https://www.instagram.com/p/{media[5]}/")
             likePost(media[0])
             if UseOpenAI:
                 # Generates a comment if UseOpenAI is set to true in 'config.json'
