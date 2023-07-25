@@ -29,4 +29,4 @@ def main():
     return JSONEncoder().encode(bot)
 
 
-main()
+print(main())
