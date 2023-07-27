@@ -21,6 +21,7 @@ datasets==2.13.1
 deepmerge==1.1.0
 Deprecated==1.2.14
 dill==0.3.6
+dnspython==2.4.0
 einops==0.6.1
 filelock==3.12.2
 filetype==1.2.0
@@ -75,6 +76,7 @@ pyarrow==12.0.1
 pycryptodomex==3.17
 pydantic==1.10.7
 Pygments==2.15.1
+pymongo==4.4.1
 pynvml==11.5.0
 pyparsing==3.1.0
 pyproject_hooks==1.0.0
