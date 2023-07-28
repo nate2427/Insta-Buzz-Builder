@@ -6,3 +6,4 @@ userswatching.json
 env/
 test.py
 bot_accounts/*
+*.DS_Store

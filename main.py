@@ -32,16 +32,16 @@ def login_user(username, password, session_id=""):
             client.login(username, password)
             try:
                 client.get_timeline_feed()
+                print("Bot is now active 😈\n")
             except LoginRequired:
                 logging.info("Session is invalid, need to log in via username and password")
                 old_session_data = client.get_settings()
                 client.set_settings({})
                 client.set_uuids(old_session_data["uuids"])
-                client.login(username, password)
-                print("Bot is now active 😈\n")
+                if client.login(username, password):
+                    print("Bot is now active 😈\n")
             else:
                 login_via_session_data = True
-                print("Bot is now active 😈\n")
 
         except Exception as e:
             logging.info(f"Couldn't log in user using session information: {e}")
@@ -67,6 +67,7 @@ def login_user(username, password, session_id=""):
             logging.info(f"Couldn't log in user using username and password: {e}")
 
     if not login_via_password and not login_via_session_data and not login_via_session_id:
+        print("Couldn't log in user with either password, session data or session id")
         raise Exception("Couldn't log in user with either password, session data or session id")
 
 
@@ -277,7 +278,7 @@ def bot(hashtag, amountposts, targeted_acct, targeted_acct_details, Usernames, R
             #Logs the posts code
             logging.info(f"Running bot on post with code: {media[5]}")
             logging.info(f"url: https://www.instagram.com/p/{media[5]}/")
-            print(f"Running bot on post: https://www.instagram.com/p/{media[5]}/")
+            print(f"Running bot on post: https://www.instagram.com/p/{media[5]}/\n")
             likePost(media[0])
             if UseOpenAI:
                 # Generates a comment if UseOpenAI is set to true in 'config.json'
@@ -324,12 +325,14 @@ if __name__ == '__main__':
     # Sets a delay range to mimic user behaviour as recommended by Instagrapi best practices
     client.delay_range = [data["RandomDelayMinBetweenInteraction"], data["RandomDelayMaxBetweenInteraction"]]
 
+    print("Logging in...\n")
     # Logs in and saves the account settings
     login_user(data["Username"], data["Password"], data["SessionID"])
 
     data["SessionID"] = client.get_settings()["authorization_data"]["sessionid"]
     with open("config.json", "w") as config_file:
         json.dump(data, config_file, indent=4)
+    print("Logged in.\n\n Running Bot...\n\n")
     bot(
         hashtag,
         amount_comments,
