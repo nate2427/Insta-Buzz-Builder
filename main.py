@@ -142,7 +142,7 @@ def getPosts(hashtag, amountposts):
     try:
         # Attemps to get posts
         print("Finding posts using hashtag: ", hashtag + "...\n")
-        posts = client.hashtag_medias_top(hashtag, amount=100)
+        posts = client.hashtag_medias_top(hashtag, amount=20)
         sorted_posts = sorted(posts, key=lambda p: p.like_count, reverse=True)
        
         print("length of posts: ", len(posts), "\n")

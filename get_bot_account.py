@@ -20,7 +20,7 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 
 def main():
     db = client["Bots"]
-    collection = db["Social Media Bots"]
+    collection = db["Social Media Bots 2"]
     # find and return one bot that is not in use and set it as in use
     bot = collection.find_one({"insta_in_use": False})
     bot["insta_in_use"] = True
