@@ -250,3 +250,78 @@ class InstaBot:
             return True
         except Exception as e:
             return False
+    
+    def get_comments_from_post(self, media_id):
+        """
+        Gets the comments from the specified post
+        """
+        try:
+            return self.client.media_comments(media_id)
+        except Exception as e:
+            return None
+        
+    def generate_reply_to_comment(self, caption_text, comment, commenter_username, targeted_acct, targeted_acct_details, persona_prompt_template):
+        """
+        Generates a personalised reply to the comment on a post specified using OpenAI.
+        """
+        usercontent = f"Write a short and entertaining Instagram comment that boosts the engagement of the commenter's comment.\The comment is on a post that is a reel and a detailed summary is here:\n\n{targeted_acct_details}\n\n The reply should not include quotation marks and should be no longer than a 5 second read. Be very entertaining and emotionally engaging. Make them want to engage with @{targeted_acct} (which is the account you are running).\nThe post's caption:\n'{caption_text}'\n\n The comment to be replied to:\n'{comment}' and the author of that comment is @{commenter_username}. Make sure to tag them, but in a cool and fun way, so that they get notified."
+
+        persona_prompt_template = f"You are a top of the line Instagram user called @{targeted_acct} who uses the comments section on targeted posts to build your engagement in the community. You reply back to comments with insight, humor, wit, and always with a question that the original commenter loves to follow up to. You are scrolling Instagram, when you find a post with the above caption and comment, do your thang!"
+
+        try:
+            # Generates the comment
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-16k",
+                temperature=0.45,
+                max_tokens=250,
+                messages=[
+                    {"role": "system",
+                    "content": persona_prompt_template},
+                    {"role": "user", "content": usercontent}
+                ]
+            )
+            comment_text = completion.choices[0]["message"]["content"]
+            return comment_text
+        except Exception as e:
+            # Returns CommentIfOpenAIFails if an erorr occurres
+            print(f"An error occurred whilst attempting to generate a comment: {e}")
+            return None
+        
+    def regenerate_reply_to_comment(self, caption_text, comment, commenter_username, targeted_acct, targeted_acct_details, old_comment, persona_prompt_template):
+        """
+        Generates a personalised reply to the comment on a post specified using OpenAI.
+        """
+        usercontent = f"Write a short and entertaining Instagram comment that boosts the engagement of the commenter's comment.\The comment is on a post that is a reel and a detailed summary is here:\n\n{targeted_acct_details}\n\n The reply should not include quotation marks and should be no longer than a 5 second read. Be very entertaining and emotionally engaging. Make them want to engage with @{targeted_acct} (which is the account you are running).\nThe post's caption:\n'{caption_text}'\n\n The comment to be replied to:\n'{comment}' and the author of that comment is @{commenter_username}. Make sure to tag them, but in a cool and fun way, so that they get notified."
+
+        persona_prompt_template = f"You are a top of the line Instagram user called @{targeted_acct} who uses the comments section on targeted posts to build your engagement in the community. You reply back to comments with insight, humor, wit, and always with a question that the original commenter loves to follow up to. You are scrolling Instagram, when you find a post with the above caption and comment. You have already created a comment:\n\n{old_comment}\n\nUnfortnately, it isnt the best comment. Try again. Make it super engaging and ask a question that will make the poster want to respond."
+
+        try:
+            # Generates the comment
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-16k",
+                temperature=0.45,
+                max_tokens=250,
+                messages=[
+                    {"role": "system",
+                    "content": persona_prompt_template},
+                    {"role": "user", "content": usercontent}
+                ]
+            )
+            comment_text = completion.choices[0]["message"]["content"]
+            return comment_text
+        except Exception as e:
+            # Returns CommentIfOpenAIFails if an erorr occurres
+            print(f"An error occurred whilst attempting to generate a comment: {e}")
+            return None
+        
+    def reply_to_comment(self, media_id, comment_pk, reply):
+        """
+        Attemps to comment the specified comment on the post with the given media_id.
+        Logs if the attempt is successful or unsuccessful
+        """
+        try:
+            # Attempts to comment on a post
+            self.client.media_comment(media_id, reply, replied_to_comment_id=comment_pk)
+            return True
+        except Exception as e:
+            return False

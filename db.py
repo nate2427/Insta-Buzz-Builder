@@ -16,14 +16,26 @@ client = MongoClient(uri, server_api=ServerApi('1'))
 db = client.Reddit
 
 # Get the persona collection
-persons = db.persona_configs
+personas = db.persona_configs
+    
 
+def add_new_persona_config(persona_name, persona_template_id):
+    new_persona_config = {
+        "persona_name": persona_name,
+        "persona_template_id": persona_template_id
+    }
+    try:
+        personas.insert_one(new_persona_config)
+        return True
+    except Exception as e:
+        print(e)
+        return False
 
-def get_all_personas():
+def get_all_persona_configs():
     persona_configs = []
     try:
         # dont return the _id field
-        persona_configs = list(persons.find({}, {"_id": 0}))
+        persona_configs = list(personas.find({}, {"_id": 0}))
         personas = {}
         for persona_config in persona_configs:
             personas[persona_config['persona_name']] = persona_config['persona_template_id']
