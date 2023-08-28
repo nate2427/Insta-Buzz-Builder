@@ -115,4 +115,4 @@ def upload_bots_from_csv(file_path):
     # save the accounts to the database
     upload_bots_from_list(accounts)
 
-upload_bots_from_csv("./bot_accounts/Nate - Project - Sheet2.csv")
+# upload_bots_from_csv("./bot_accounts/Nate - Project - Sheet2.csv")

@@ -3,10 +3,10 @@
   "Password": "",
   "SessionID": "",
   "UsersToWatch": [],
-  "RandomDelayMinBetweenInteraction": 1,
-  "RandomDelayMaxBetweenInteraction": 3,
-  "RandomDelayMinBetweenPost": 30,
-  "RandomDelayMaxBetweenPost": 60,
+  "RandomDelayMinBetweenInteraction": 10,
+  "RandomDelayMaxBetweenInteraction": 30,
+  "RandomDelayMinBetweenPost": 60,
+  "RandomDelayMaxBetweenPost": 300,
   "OpenAIAPI_Key": "",
   "CommentIfOpenAIFails": "",
   "OpenAIModel": "gpt-3.5-turbo-16k",
@@ -17,5 +17,6 @@
   "THUNDER_PROXIES_PORT": "",
   "MONGODB_PWD": "",
   "MONGODB_USER": "",
-  "MONGODB_URI": ""
+  "MONGODB_URI": "",
+  "PROMPTLAYER_API_KEY": ""
 }

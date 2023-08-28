@@ -6,8 +6,6 @@ from random import randint
 import openai
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
-from fp.fp import FreeProxy
-
 
 
 def login_user(username, password, session_id=""):
@@ -193,6 +191,112 @@ def getCommentsList():
     return commentslist
 
 
+def replyToCommentBot(post_url, amount_comments, targeted_acct, targeted_acct_details, post_niche, engagement_strategy, client_niche, client_background, client_tone, client_personality, post_about, users_to_watch, delay_min, delay_max, use_openai, openai_api_key, openai_model, comment_if_openai_fails):
+    """
+    Finds comments on the specified post, and replies to them.
+    The reply is generated using OpenAI
+
+    :param str post_url: The URL of the post to comment on
+    :param int amount_comments: Amount of comments to reply to
+    :param str targeted_acct: The account to promote
+    :param str targeted_acct_details: The details about the instagram account to that made the comment
+    :param str post_niche: The niche of the post
+    :param str engagement_strategy: The ideal way to engage the commenters and loop client in
+    :param str client_niche: The niche of the client
+    :param str client_background: The background info of the client
+    :param str client_tone: The client's tone of voice
+    :param str client_personality: The client's personality
+    :param str post_about: What the post is about
+    """
+    # Get the media ID from the post URL
+    media_pk = client.media_pk_from_url(post_url)
+    media_id = client.media_id(media_pk)
+
+    # log statement to indicate the post is being loaded
+    logging.info(f"Loading post: {post_url}")
+    print(f"Loading post: {post_url}")
+    # Get the comments from the post
+    comments = client.media_comments(media_id, amount=amount_comments)
+    logging.info(f"Successfully loaded post: {post_url}.\n Number of comments: {len(comments)}")
+    print(f"Successfully loaded post: {post_url}.\n Number of comments: {len(comments)}")
+
+
+    for comment in comments:
+        # make a log statement to indicate the comment is being replied to
+        logging.info(f"Replying to comment: {comment.text}")
+        print(f"Replying to comment:\n\n {comment.text}\n\n")
+        # Generate a reply to the comment
+        reply = generateReplyToComment(
+            data["OpenAIAPI_Key"],
+            data["OpenAIModel"],
+            data["CommentIfOpenAIFails"],
+            comment.text,
+            comment.user.username,
+            targeted_acct,
+            targeted_acct_details,
+            post_niche,
+            engagement_strategy,
+            client_niche,
+            client_background,
+            client_tone,
+            client_personality,
+            post_about
+        )
+
+        # Reply to the comment
+        client.media_comment(media_id, reply, replied_to_comment_id=comment.pk)
+        # add a logging statement
+        logging.info(f"Replied to comment: {reply}")
+        print(f"Replied to comment: {reply}")
+        time.sleep(randint(delay_min, delay_max))
+
+
+
+
+def generateReplyToComment(openai_api_key, model, CommentIfOpenAIFails, comment_text, comment_username, targeted_acct, targeted_acct_details, post_niche, engagement_strategy, client_niche, client_background, client_tone, client_personality, post_about):
+    """
+    Generates a personalised reply to the comment specified using OpenAI.
+
+    :param str openai_api_key: Your OpenAI API key
+    :param str model: Which OpenAI model to use
+    :param str CommentIfOpenAIFails: What to comment if OpenAI fails to generate a comment
+    :param str comment_text: The text of the comment to reply to
+    :param str comment_username: The username of the commenter
+    :param str targeted_acct: The account to promote
+    :param str targeted_acct_details: The details about the account to promote
+    :param str post_niche: The niche of the post
+    :param str engagement_strategy: The ideal way to engage the commenters and loop client in
+    :param str client_niche: The niche of the client
+    :param str client_background: The background info of the client
+    :param str client_tone: The client's tone of voice
+    :param str client_personality: The client's personality
+    :param str post_about: What the post is about
+    :return: A reply to the comment
+    :rtype: str
+    """
+
+    usercontent = f"Details about {targeted_acct} and the post are:\n\nThe post's niche:\n{post_niche}\n\nIdeal way to engage the commenters and loop client in:\n{engagement_strategy}\n\nClient's niche:\n{client_niche}\n\nBackground info of client:\n{client_background}\n\nClient's tone of voice:\n{client_tone}\n\nClient's personality:\n{client_personality}\n\nWhat the post is about:\n{post_about}\n\nPoster's Info:\n{targeted_acct_details}\n\nUser's comment to reply to:\n{comment_text}\n\nCommenters account: {comment_username}"
+
+    try:
+        # Generates the reply
+        openai.api_key = openai_api_key
+        completion = openai.ChatCompletion.create(
+            model=model,
+            temperature=.76,
+            messages=[
+                {"role": "system",
+                 "content": "You are a top of the line Instagram Community Builder Agency called Buzz Builders who uses the comments section on targeted posts to boost traffic to another account. Your task is to generate engaging and personalized replies to comments on Instagram posts. You will be given a bunch of context about the account you are promoting and the post you are promoting. You should always tag the account you are promoting to engage them in the conversation. There are three accounts involved here: the account who posted the post, the account you are promoting, and the account you are replying to. Your goal is to stimulate engaging conversations that are beneficial to the community and the accounts involved. You should not directly ask people to follow the account you are promoting, but rather make them interested in doing so through the content of your replies. Remember to always respect the tone of voice and personality of the account you are promoting."},
+                {"role": "user", "content": usercontent}
+            ]
+        )
+        reply_text = completion.choices[0]["message"]["content"]
+        return reply_text
+    except Exception as e:
+        # Returns CommentIfOpenAIFails if an erorr occurres
+        return CommentIfOpenAIFails
+ 
+
+
 def generateComment(openai_api_key, model, CommentIfOpenAIFails, caption_text, comment_count, media_id, username, targeted_acct, targeted_acct_details):
     """
     Generates a personalised comment to the post specified using OpenAI.
@@ -300,18 +404,6 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', filename='log.log', encoding='utf-8',
                         level=logging.INFO)
 
-    # Asks for user input
-    hashtag = input("Please enter the hashtag for the posts you want to comment on (Do not include '#'): ")
-    targeted_acct = input("whose account should we promote in our targeting? (Do not include '@'): ")
-    targeted_acct_details = input("Give me details about the account: ")
-    try:
-        amount_comments = int(input("Please enter the amount of posts to comment on: "))
-        if amount_comments < 1:
-            raise ValueError
-    except Exception as e:
-        print(f"Invalid amount of posts to comment on specified: {e}\nPlease restart the script and try again")
-        logging.error(f"Invalid amount of posts to comment on specified: {e}")
-    
     # Sets the client
     client = Client()
 
@@ -319,7 +411,7 @@ if __name__ == '__main__':
     with open('config.json') as config_file:
         data = json.load(config_file)
 
-    # sets the proxy
+    # Sets the proxy
     proxy = f"http://{data['THUNDER_PROXIES_USER']}:{data['THUNDER_PROXIES_PASS']}@{data['THUNDER_PROXIES_URL']}:{data['THUNDER_PROXIES_PORT']}"
     client.set_proxy(proxy)
 
@@ -334,16 +426,73 @@ if __name__ == '__main__':
     with open("config.json", "w") as config_file:
         json.dump(data, config_file, indent=4)
     print("Logged in.\n\n Running Bot...\n\n")
-    bot(
-        hashtag,
-        amount_comments,
-        targeted_acct,
-        targeted_acct_details,
-        data["UsersToWatch"],
-        data["RandomDelayMinBetweenPost"],
-        data["RandomDelayMaxBetweenPost"],
-        data["UseOpenAI"],
-        data["OpenAIAPI_Key"],
-        data["OpenAIModel"],
-        data["CommentIfOpenAIFails"]
-    )
+
+    # Asks for user input
+    method = input("Choose method:\n1) Hashtag Targeting\n2) Post Targeting: ")
+    if method == "1":
+        hashtag = input("Please enter the hashtag for the posts you want to comment on (Do not include '#'): ")
+        targeted_acct = input("Whose account should we promote in our targeting? (Do not include '@'): ")
+        targeted_acct_details = input("Give me details about the account who: ")
+        try:
+            amount_comments = int(input("Please enter the amount of posts to comment on: "))
+            if amount_comments < 1:
+                raise ValueError
+        except Exception as e:
+            print(f"Invalid amount of posts to comment on specified: {e}\nPlease restart the script and try again")
+            logging.error(f"Invalid amount of posts to comment on specified: {e}")
+        bot(
+            hashtag,
+            amount_comments,
+            targeted_acct,
+            targeted_acct_details,
+            data["UsersToWatch"],
+            data["RandomDelayMinBetweenPost"],
+            data["RandomDelayMaxBetweenPost"],
+            data["UseOpenAI"],
+            data["OpenAIAPI_Key"],
+            data["OpenAIModel"],
+            data["CommentIfOpenAIFails"]
+        )
+    elif method == "2":
+        print("\n********************************* POST DETAILS  *********************************\n")
+        post_url = input("Please enter the URL of the post you want to comment on: ")
+        targeted_acct_details = input("\nGive me details about the account that made the post: ")
+        post_about = input("\nWhat's the post about? ")
+        post_niche = input("\nWhat niche is the post in? ")
+        print("\n********************************* CLIENT DETAILS  *********************************\n")
+        targeted_acct = input("\nWhose account should we promote in our targeting? (Do not include '@'): ")
+        client_background = input("\nWhat's the background info of the client? ")
+        client_niche = input("\nWhat's the client's niche? ")
+        client_tone = input("\nWhat's the client's tone of voice? ")
+        client_personality = input("\nWhat's the client's personality? ")
+        print("\n********************************* ENGAGEMENT STRATEGY  *********************************\n")
+        engagement_strategy = input("\nWhat's the ideal way to engage the commenters and loop client in? ")
+        try:
+            amount_comments = int(input("\nPlease enter the amount of comments to reply to on post: "))
+            if amount_comments < 1:
+                raise ValueError
+        except Exception as e:
+            print(f"Invalid amount of posts to comment on specified: {e}\nPlease restart the script and try again")
+            logging.error(f"Invalid amount of posts to comment on specified: {e}")
+        replyToCommentBot(
+            post_url,
+            amount_comments,
+            targeted_acct,
+            targeted_acct_details,
+            post_niche,
+            engagement_strategy,
+            client_niche,
+            client_background,
+            client_tone,
+            client_personality,
+            post_about,
+            data["UsersToWatch"],
+            data["RandomDelayMinBetweenPost"],
+            data["RandomDelayMaxBetweenPost"],
+            data["UseOpenAI"],
+            data["OpenAIAPI_Key"],
+            data["OpenAIModel"],
+            data["CommentIfOpenAIFails"]
+        )
+    else:
+        print("Invalid method chosen. Please restart the script and try again.")

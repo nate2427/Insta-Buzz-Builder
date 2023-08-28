@@ -7,3 +7,7 @@ env/
 test.py
 bot_accounts/*
 *.DS_Store
+test_data/
+___session.json
+__pycache__/
+main copy.py
