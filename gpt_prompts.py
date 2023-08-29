@@ -13,6 +13,8 @@ openai = promptlayer.openai
 
 
 def get_prompt(prompt_id):
+    if prompt_id is None:
+        return ""
     template_dict = promptlayer.prompts.get(prompt_id)
     template = template_dict['template']
     return template
