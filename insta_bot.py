@@ -30,7 +30,7 @@ class InstaBot:
         self.client.set_proxy(proxy)
 
         # Sets a delay range to mimic user behaviour as recommended by Instagrapi best practices
-        self.client.delay_range = [os.getenv("RandomDelayMinBetweenInteraction"), os.getenv("RandomDelayMaxBetweenInteraction")]
+        self.client.delay_range = [int(os.getenv("RandomDelayMinBetweenInteraction")), int(os.getenv("RandomDelayMaxBetweenInteraction"))]
 
         # login user
         self.login_user(self.username, self.password)
@@ -39,7 +39,6 @@ class InstaBot:
         with open("config.json", "w") as config_file:
             json.dump(data, config_file, indent=4)
         openai.api_key = os.getenv('OpenAIAPI_Key')
-        print("Logged in.\n\n Running Bot...\n\n")
 
     def login_user(self, username, password, session_id=""):
         """

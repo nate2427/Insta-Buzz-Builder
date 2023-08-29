@@ -1,6 +1,6 @@
 import streamlit as st
 from insta_bot import InstaBot as bot
-from db import add_new_persona_config
+from db import add_new_persona_config, get_all_persona_configs
 from gpt_prompts import get_prompt, update_persona_prompt_template
 
 
@@ -19,9 +19,6 @@ def generate_comments_page():
     if 'ai_comments' not in st.session_state:
         st.session_state.ai_comments = {}
 
-    if 'comments' not in st.session_state:
-        st.session_state.comments = []
-
     if 'post' not in st.session_state:
         st.session_state.post = ""
     
@@ -38,7 +35,8 @@ def generate_comments_page():
     st.session_state.post_url = col1.text_input("Instagram post URL", value=st.session_state.post_url)
     search_button = col1.button("search")
     
-
+    if "personas" not in st.session_state:
+        st.session_state.personas = get_all_persona_configs()
     if search_button:
         # st.session_state.post_url = post_url
         # with st.spinner("Loading..."):
@@ -46,24 +44,22 @@ def generate_comments_page():
             login_bot()
         st.session_state.post_info = st.session_state.bot.get_instagram_post(post_url=st.session_state.post_url)
     #     st.session_state.comments = bot.grab_comments(st.session_state.post)
-        personas = get_all_personas()
-        st.session_state.selected_persona = col2.selectbox("Choose A Persona", personas.keys(), index=0 if 'selected_persona' not in st.session_state else list(personas.keys()).index(st.session_state.selected_persona))
+        st.session_state.selected_persona = col2.selectbox("Choose A Persona", st.session_state.personas.keys(), index=0 if 'selected_persona' not in st.session_state else list(st.session_state.personas.keys()).index(st.session_state.selected_persona))
     elif 'selected_persona' in st.session_state:
-        personas = get_all_personas()
-        st.session_state.selected_persona = col2.selectbox("Choose A Persona", personas.keys(), index=list(personas.keys()).index(st.session_state.selected_persona))
+        st.session_state.selected_persona = col2.selectbox("Choose A Persona", st.session_state.personas.keys(), index=list(st.session_state.personas.keys()).index(st.session_state.selected_persona))
 
-    if 'bot' in st.session_state and st.session_state.post_url:
+    if 'bot' in st.session_state and "post_info" in st.session_state:
         # sidebar configuration section
         st.sidebar.title("Instagram Post")
         st.sidebar.text_area("Post", f"{st.session_state.post_info.title}", label_visibility="hidden", height=250)
         st.sidebar.text(f"Author: {st.session_state.post_info.author_name}")
 
         # show selected persona prompt template in sidebar
-        persona_prompt = get_prompt(personas[st.session_state.selected_persona])
+        persona_prompt = get_prompt(st.session_state.personas[st.session_state.selected_persona])
         persona_prompt_text_area = st.sidebar.text_area("Persona: 🧑🏾‍🦱", persona_prompt, height=250)
         if st.sidebar.button("Update Persona"):
-            st.sidebar.info(f"{personas[st.session_state.selected_persona]} \n\n {persona_prompt_text_area}")
-            if update_persona_prompt_template(personas[st.session_state.selected_persona], persona_prompt_text_area):
+            st.sidebar.info(f"{st.session_state.personas[st.session_state.selected_persona]} \n\n {persona_prompt_text_area}")
+            if update_persona_prompt_template(st.session_state.personas[st.session_state.selected_persona], persona_prompt_text_area):
                 st.sidebar.success("Updated!")
             else:
                 st.sidebar.error("Failed Upating Persona!")
@@ -112,9 +108,8 @@ def generate_comments_page():
 
         # comments section
         st.header("Top Level Comments")
-        post_comments = st.session_state.bot.get_comments_from_post(st.session_state.post_info.media_id)
-        if post_comments:
-            st.session_state.comments = post_comments
+        if "comments" not in st.session_state:
+            st.session_state.comments = st.session_state.bot.get_comments_from_post(st.session_state.post_info.media_id)
         for i, comment in enumerate(st.session_state.comments):
             comment_author = comment.user.username
             comment_body = comment.text

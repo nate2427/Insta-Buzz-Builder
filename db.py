@@ -40,10 +40,10 @@ def get_all_persona_configs():
     try:
         # dont return the _id field
         persona_configs = list(personas.find({}, {"_id": 0}))
-        personas = {}
+        _personas = {}
         for persona_config in persona_configs:
-            personas[persona_config['persona_name']] = persona_config['persona_template_id']
-        return personas
+            _personas[persona_config['persona_name']] = persona_config['persona_template_id']
+        return _personas
     except Exception as e:
         print(e)
         return persona_configs
