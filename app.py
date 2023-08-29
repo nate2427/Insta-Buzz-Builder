@@ -15,6 +15,9 @@ def generate_comments_page():
     if 'post_url' not in st.session_state:
         st.session_state.post_url = ""
 
+    if "personas" not in st.session_state:
+        st.session_state.personas = get_all_persona_configs()
+
     # Initialize AI comments in session state if not present
     if 'ai_comments' not in st.session_state:
         st.session_state.ai_comments = {}
@@ -35,8 +38,6 @@ def generate_comments_page():
     st.session_state.post_url = col1.text_input("Instagram post URL", value=st.session_state.post_url)
     search_button = col1.button("search")
     
-    if "personas" not in st.session_state:
-        st.session_state.personas = get_all_persona_configs()
     if search_button:
         # st.session_state.post_url = post_url
         # with st.spinner("Loading..."):
@@ -53,6 +54,8 @@ def generate_comments_page():
         st.sidebar.title("Instagram Post")
         st.sidebar.text_area("Post", f"{st.session_state.post_info.title}", label_visibility="hidden", height=250)
         st.sidebar.text(f"Author: {st.session_state.post_info.author_name}")
+
+        print("Persona: ", st.session_state.personas[st.session_state.selected_persona])
 
         # show selected persona prompt template in sidebar
         persona_prompt = get_prompt(st.session_state.personas[st.session_state.selected_persona])
