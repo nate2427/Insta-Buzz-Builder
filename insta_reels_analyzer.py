@@ -1,8 +1,10 @@
-import requests
 import json
 import openai
 import logging
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 # Loads the config
 with open('config.json') as config_file:
@@ -16,7 +18,7 @@ from instagrapi import Client
 
 
 # Initialize OpenAI and WhisperASR
-openai.api_key = data["OpenAIAPI_Key"]
+openai.api_key = os.getenv("OpenAIAPI_Key")
 
 
 def login_user(username, password, session_id=""):
@@ -102,7 +104,7 @@ def transcribe_video(audio_file_path):
 def summarize_transcript(transcript):
     prompt = f"The following is a transcript of an instagram reel:\n\n{transcript}"
     completion = openai.ChatCompletion.create(
-            model=data["OpenAIModel"],
+            model=os.getenv("OpenAIModel"),
             temperature=.76,
             messages=[
                 {"role": "system",

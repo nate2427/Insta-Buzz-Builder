@@ -1,14 +1,18 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-import json
+import json, os
+from dotenv import load_dotenv
+load_dotenv()
 
  # Loads the config
 with open('config.json') as config_file:
     data = json.load(config_file)
 
-MONGO_DB_URI = data['MONGODB_URI']
-MONGO_DB_PWD = data['MONGODB_PWD']
-MONGODB_USER = data['MONGODB_USER']
+
+MONGO_DB_URI = os.getenv("MONGODB_URI")
+MONGO_DB_PWD = os.getenv("MONGODB_PWD")
+MONGODB_USER = os.getenv("MONGODB_USER")
+
 
 uri = f"mongodb+srv://{MONGODB_USER}:{MONGO_DB_PWD}@{MONGO_DB_URI}"
 

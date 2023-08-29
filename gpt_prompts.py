@@ -1,12 +1,14 @@
 import promptlayer
-import json
+import json, os
+from dotenv import load_dotenv
+load_dotenv()
 
  # Loads the config
 with open('config.json') as config_file:
     data = json.load(config_file)
 
 
-promptlayer.api_key = data["PROMPTLAYER_API_KEY"]
+promptlayer.api_key = os.getenv("PROMPTLAYER_API_KEY")
 openai = promptlayer.openai
 
 

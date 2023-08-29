@@ -1,14 +1,16 @@
-import json
+import json, os
 from instagrapi import Client
 from instagrapi.exceptions import LoginRequired
 from insta_reels_analyzer import analyze_reel
 import promptlayer
+from dotenv import load_dotenv
+load_dotenv()
 
  # Loads the config
 with open('config.json') as config_file:
     data = json.load(config_file)
 
-promptlayer.api_key = data["PROMPTLAYER_API_KEY"]
+promptlayer.api_key = os.getenv("PROMPTLAYER_API_KEY")
 openai = promptlayer.openai
 
 class InstaBot:
@@ -20,15 +22,15 @@ class InstaBot:
         with open('config.json') as config_file:
             data = json.load(config_file)
 
-        self.username = data['Username']
-        self.password = data['Password']
+        self.username = os.getenv('Username')
+        self.password = os.getenv('Password')
 
         # Sets the proxy
-        proxy = f"http://{data['THUNDER_PROXIES_USER']}:{data['THUNDER_PROXIES_PASS']}@{data['THUNDER_PROXIES_URL']}:{data['THUNDER_PROXIES_PORT']}"
+        proxy = f"http://{os.getenv('THUNDER_PROXIES_USER')}:{os.getenv('THUNDER_PROXIES_PASS')}@{os.getenv('THUNDER_PROXIES_URL')}:{os.getenv('THUNDER_PROXIES_PORT')}"
         self.client.set_proxy(proxy)
 
         # Sets a delay range to mimic user behaviour as recommended by Instagrapi best practices
-        self.client.delay_range = [data["RandomDelayMinBetweenInteraction"], data["RandomDelayMaxBetweenInteraction"]]
+        self.client.delay_range = [os.getenv("RandomDelayMinBetweenInteraction"), os.getenv("RandomDelayMaxBetweenInteraction")]
 
         # login user
         self.login_user(self.username, self.password)
@@ -36,7 +38,7 @@ class InstaBot:
         data["SessionID"] = self.client.get_settings()["authorization_data"]["sessionid"]
         with open("config.json", "w") as config_file:
             json.dump(data, config_file, indent=4)
-        openai.api_key = data['OpenAIAPI_Key']
+        openai.api_key = os.getenv('OpenAIAPI_Key')
         print("Logged in.\n\n Running Bot...\n\n")
 
     def login_user(self, username, password, session_id=""):
